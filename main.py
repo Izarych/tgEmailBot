@@ -12,7 +12,7 @@ TOKEN = '6212852313:AAFnr4L5vlQdZ7U78x0-ESTz4DTp_rd9x10'
 SMTP_SERVER = 'smtp.gmail.com'
 SMTP_PORT = 587
 SENDER_EMAIL = 'pathtop33@gmail.com' # ЗАМЕНИТЬ
-SENDER_PASSWORD = 'hcrmvvvnjwbsuuns' # ЗАМЕНИТЬ
+SENDER_PASSWORD = 'secret' # ЗАМЕНИТЬ
 
 bot = telebot.TeleBot(TOKEN)
 attachments = []
