@@ -11,11 +11,12 @@ TOKEN = '6212852313:AAFnr4L5vlQdZ7U78x0-ESTz4DTp_rd9x10'
 
 SMTP_SERVER = 'smtp.gmail.com'
 SMTP_PORT = 587
-SENDER_EMAIL = 'pathtop33@gmail.com' # ЗАМЕНИТЬ
-SENDER_PASSWORD = 'secret' # ЗАМЕНИТЬ
+SENDER_EMAIL = 'pathtop33@gmail.com'  # ЗАМЕНИТЬ
+SENDER_PASSWORD = 'secret'  # ЗАМЕНИТЬ
 
 bot = telebot.TeleBot(TOKEN)
 attachments = []
+fullname = {}
 
 
 @bot.message_handler(commands=['start'])
@@ -25,6 +26,34 @@ def send_welcome(message):
 
 
 @bot.message_handler(commands=['send'])
+def check_fullname(message):
+    cid = message.chat.id
+    if cid in fullname:
+        bot.send_message(cid, f'Вас зовут {fullname.get(cid)}, верно?')
+        bot.register_next_step_handler(message, check_answer)
+    else:
+        ask_fullname(message)
+
+
+def check_answer(message):
+    if message.text.lower() == 'да':
+        send_email(message)
+    else:
+        ask_fullname(message)
+
+
+def ask_fullname(message):
+    cid = message.chat.id
+    bot.send_message(cid, 'Введите свою имя и фамилию')
+    bot.register_next_step_handler(message, save_fullname)
+
+
+def save_fullname(message):
+    cid = message.chat.id
+    fullname[cid] = message.text
+    send_email(message)
+
+
 def send_email(message):
     cid = message.chat.id
     bot.send_message(cid, 'Введите тему письма:')
@@ -38,18 +67,19 @@ def send_subject(message):
     bot.register_next_step_handler(message, send_message, subject)
 
 
-def send_message(message,subject):
+def send_message(message, subject):
     cid = message.chat.id
-    text = message.text
+    text = message.text + f'. С уважением {fullname.get(cid)}'
 
     msg = MIMEMultipart()
     msg['From'] = SENDER_EMAIL
-    msg['To'] = 'thelasthope158@gmail.com' # ЗАМЕНИТЬ
+    msg['To'] = 'thelasthope158@gmail.com'  # ЗАМЕНИТЬ
     msg['Subject'] = subject
 
     msg.attach(MIMEText(text, 'plain'))
 
-    bot.send_message(cid, 'Прикрепите файлы (если необходимо), (1 файл в 1 сообщении) или отправьте письмо без вложений написав любое сообщение')
+    bot.send_message(cid,
+                     'Прикрепите файлы (если необходимо), (1 файл в 1 сообщении) или отправьте письмо без вложений написав любое сообщение')
     bot.register_next_step_handler(message, attach_files, subject, msg)
 
 
@@ -80,7 +110,7 @@ def attach_files(message, subject, msg):
         return
 
     bot.send_message(cid,
-                 'Прикрепите еще файлы (если необходимо), (1 файл в 1 сообщении) или напишите любое сообщение чтобы отправить письмо')
+                     'Прикрепите еще файлы (если необходимо), (1 файл в 1 сообщении) или напишите любое сообщение чтобы отправить письмо')
     bot.register_next_step_handler(message, attach_files, subject, msg)
 
 
